@@ -6,14 +6,19 @@ Set a task, start a timer, and let the app guide you through proven Pomodoro cyc
 
 ## Features
 
-- **Multiple Custom Timers**: Create and manage unlimited timer presets with custom names, durations, colors, and icons
-- **Visual Progress Tracking**: Beautiful circular progress indicator showing timer countdown
-- **Persistent Storage**: All timers saved locally with SQLite database
-- **Sound & Vibration Notifications**: Customizable alerts for timer completion
-- **Modern Material Design 3 UI**: Clean, intuitive interface with smooth navigation
+- 🎯 **Multiple Custom Timers**: Create and manage unlimited timer presets with custom names, durations, colors, and icons
+- 📊 **Visual Progress Tracking**: Beautiful circular progress indicator showing timer countdown
+- 💾 **Persistent Storage**: All timers saved locally with SQLite database
+- 🔔 **Sound & Vibration Notifications**: Customizable alerts for timer completion
+- 🎨 **Modern Material Design 3 UI**: Clean, intuitive interface with smooth navigation
 
 
 ## Screenshots
+
+<div align="center">
+  <img src="Screenshots/timers.png" alt="Timers Screen" width="300"/>
+  <img src="Screenshots/pomodoro.png" alt="Pomodoro Screen" width="300"/>
+</div>
 
 The app features three main screens:
 1. **Timers Screen**: View and manage all your timer presets in a grid layout
