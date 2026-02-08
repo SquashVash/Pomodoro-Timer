@@ -20,10 +20,6 @@ Set a task, start a timer, and let the app guide you through proven Pomodoro cyc
   <img src="Screenshots/pomodoro.png" alt="Pomodoro Screen" width="300"/>
 </div>
 
-The app features three main screens:
-1. **Timers Screen**: View and manage all your timer presets in a grid layout
-2. **Pomodoro Screen**: The main timer interface with circular progress indicator
-3. **Settings Screen**: Configure app preferences and view app information
 
 ## Requirements
 
