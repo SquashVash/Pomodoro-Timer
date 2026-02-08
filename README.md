@@ -1,6 +1,8 @@
 # Pomodoro Timer
 
-A beautiful and feature-rich Pomodoro Timer application built with Flutter. Manage your productivity with customizable timers, track your focus sessions, and maintain a healthy work-break balance.
+This Pomodoro Timer app helps you work smarter by breaking your day into focused sessions and refreshing breaks.
+
+Set a task, start a timer, and let the app guide you through proven Pomodoro cycles that boost concentration and reduce procrastination. With a clean, distraction-free design, customizable work and break lengths, and gentle reminders to pause and reset, it’s perfect for studying, coding, writing, or tackling your to-do list. One timer, better focus, real progress—25 minutes at a time. 🍅⏱️
 
 ## Features
 
