@@ -4,35 +4,12 @@ A beautiful and feature-rich Pomodoro Timer application built with Flutter. Mana
 
 ## Features
 
-### 🎯 Core Functionality
-- **Multiple Timer Presets**: Create and manage multiple custom timers
-- **Circular Progress Indicator**: Visual progress tracking with a beautiful circular design
-- **Timer Controls**: Start, pause, and reset functionality
-- **Next Suggested Timer**: Automatically suggests the next timer after completion
-- **Persistent Storage**: All timers are saved locally using SQLite database
+- **Multiple Custom Timers**: Create and manage unlimited timer presets with custom names, durations, colors, and icons
+- **Visual Progress Tracking**: Beautiful circular progress indicator showing timer countdown
+- **Persistent Storage**: All timers saved locally with SQLite database
+- **Sound & Vibration Notifications**: Customizable alerts for timer completion
+- **Modern Material Design 3 UI**: Clean, intuitive interface with smooth navigation
 
-### 🎨 Customization
-- **Custom Timer Creation**: Add timers with custom names, durations, colors, and icons
-- **Timer Management**: Edit or delete existing timers
-- **Color-Coded Timers**: Each timer can have its own unique color theme
-- **Icon Selection**: Choose from a variety of icons for your timers
-
-### 📱 User Interface
-- **Material Design 3**: Modern, clean UI following Material Design principles
-- **Bottom Navigation**: Easy navigation between Timers, Pomodoro, and Settings screens
-- **Responsive Design**: Adapts to different screen sizes
-- **Intuitive Controls**: Simple tap-to-start/pause functionality
-
-### ⚙️ Settings
-- **Sound Notifications**: Enable/disable sound alerts when timer completes
-- **Vibration**: Toggle vibration feedback for timer completion
-
-### 📦 Default Timers
-The app comes with four pre-configured timers:
-- **Pomodoro** (25 minutes) - Red theme
-- **Short Break** (5 minutes) - Green theme
-- **Long Break** (15 minutes) - Blue theme
-- **Focus Session** (45 minutes) - Orange theme
 
 ## Screenshots
 
