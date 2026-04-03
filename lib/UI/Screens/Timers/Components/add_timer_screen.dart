@@ -22,16 +22,7 @@ class _AddTimerScreenState extends State<AddTimerScreen> {
   int? _selectedNextSuggestedTimerID;
   List<PomodoroTimer> _availableTimers = [];
 
-  final List<IconData> _iconOptions = [
-    Icons.timer,
-    Icons.work,
-    Icons.school,
-    Icons.fitness_center,
-    Icons.coffee,
-    Icons.book,
-    Icons.computer,
-    Icons.music_note,
-  ];
+  final List<IconData> _iconOptions = DatabaseService.iconOptions;
 
   @override
   void initState() {

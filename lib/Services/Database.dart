@@ -12,6 +12,18 @@ class DatabaseService {
 
   static Database? _database;
 
+  static const List<IconData> _iconOptions = [
+    Icons.timer,
+    Icons.work,
+    Icons.school,
+    Icons.fitness_center,
+    Icons.coffee,
+    Icons.book,
+    Icons.computer,
+    Icons.music_note,
+  ];
+  static List<IconData> get iconOptions => _iconOptions;
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -134,16 +146,20 @@ class DatabaseService {
   Future<PomodoroTimer> _timerFromMap(Map<String, dynamic> map, Database db) async {
     final id = map['id'] as int?;
     final nextSuggestedTimerID = map['next_suggested_timer_id'] as int?;
+    final codePoint = map['icon_code_point'] as int;
+
+    // Find the matching icon from your allowed list
+    // If not found (e.g., if you change the list later), default to Icons.timer
+    final icon = iconOptions.firstWhere(
+          (icon) => icon.codePoint == codePoint,
+      orElse: () => Icons.timer,
+    );
 
     return PomodoroTimer(
       map['name'] as String,
       Duration(seconds: map['duration_seconds'] as int),
       Color(map['color_value'] as int),
-      IconData(
-        map['icon_code_point'] as int,
-        fontFamily: map['icon_font_family'] as String?,
-        fontPackage: map['icon_font_package'] as String?,
-      ),
+      icon, // Now using the constant from your list!
       id: id,
       nextSuggestedTimerID: nextSuggestedTimerID,
     );
