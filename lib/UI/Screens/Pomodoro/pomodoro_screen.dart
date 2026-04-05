@@ -49,7 +49,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         _isRunning = true;
       });
       _remainingSeconds--;
-      _timer = Timer.periodic(const Duration(microseconds: 1), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           if (_remainingSeconds > 0) {
             _remainingSeconds--;
