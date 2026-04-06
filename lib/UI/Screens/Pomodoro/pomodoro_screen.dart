@@ -4,6 +4,7 @@ import 'package:pomodoro/Data/PomodoroTimer.dart';
 import 'package:pomodoro/Services/Database.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/control_bar.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/finished_timer_dialog.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class PomodoroScreen extends StatefulWidget {
   final PomodoroTimer Ptimer;
@@ -48,6 +49,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       setState(() {
         _isRunning = true;
       });
+      _updateWakelock();
       _remainingSeconds--;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
@@ -66,6 +68,17 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       _isRunning = false;
     });
     _timer?.cancel();
+    _updateWakelock();
+  }
+
+  Future<void> _updateWakelock() async {
+    final db = DatabaseService();
+    final keepScreenOn = await db.getSetting('keep_screen_on', defaultValue: true);
+    if (_isRunning && keepScreenOn) {
+      WakelockPlus.enable();
+    } else {
+      WakelockPlus.disable();
+    }
   }
   void _resetTimer() {
     _pauseTimer();
@@ -196,6 +209,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    WakelockPlus.disable();
     super.dispose();
   }
 }

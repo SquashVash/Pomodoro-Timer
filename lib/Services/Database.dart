@@ -36,8 +36,9 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -56,8 +57,35 @@ class DatabaseService {
       )
     ''');
 
+    // Create settings table
+    await db.execute('''
+      CREATE TABLE settings (
+        key TEXT PRIMARY KEY,
+        value INTEGER NOT NULL
+      )
+    ''');
+
     // Insert default timers
     await _insertDefaultTimers(db);
+    
+    // Insert default settings
+    await _insertDefaultSettings(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE settings (
+          key TEXT PRIMARY KEY,
+          value INTEGER NOT NULL
+        )
+      ''');
+      await _insertDefaultSettings(db);
+    }
+  }
+
+  Future<void> _insertDefaultSettings(Database db) async {
+    await db.insert('settings', {'key': 'keep_screen_on', 'value': 1}, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   Future<void> _insertDefaultTimers(Database db) async {
@@ -220,6 +248,28 @@ class DatabaseService {
       'pomodoro_timers',
       where: 'name = ?',
       whereArgs: [name],
+    );
+  }
+
+  // Get Setting
+  Future<bool> getSetting(String key, {bool defaultValue = true}) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'settings',
+      where: 'key = ?',
+      whereArgs: [key],
+    );
+    if (maps.isEmpty) return defaultValue;
+    return (maps.first['value'] as int) == 1;
+  }
+
+  // Set Setting
+  Future<void> setSetting(String key, bool value) async {
+    final db = await database;
+    await db.insert(
+      'settings',
+      {'key': key, 'value': value ? 1 : 0},
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
