@@ -1,5 +1,6 @@
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
 
 class PrivacyScreen extends StatelessWidget {
   final VoidCallback onNext;
@@ -44,7 +45,24 @@ class PrivacyScreen extends StatelessWidget {
                 height: 56,
                 child: OutlinedButton(
                   onPressed: () async {
-                    await AppTrackingTransparency.requestTrackingAuthorization();
+                    if (!Platform.isIOS) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tracking authorization is only available on iOS.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    try {
+                      await AppTrackingTransparency.requestTrackingAuthorization();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Unable to open data options: $e'),
+                        ),
+                      );
+                    }
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
