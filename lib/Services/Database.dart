@@ -12,6 +12,9 @@ class DatabaseService {
 
   static Database? _database;
 
+  static const String settingKeepScreenOn = 'keep_screen_on';
+  static const String settingOnboardingCompleted = 'onboarding_completed';
+
   static const List<IconData> _iconOptions = [
     Icons.timer,
     Icons.work,
@@ -36,7 +39,7 @@ class DatabaseService {
     
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -82,10 +85,27 @@ class DatabaseService {
       ''');
       await _insertDefaultSettings(db);
     }
+
+    if (oldVersion < 3) {
+      await db.insert(
+        'settings',
+        {'key': settingOnboardingCompleted, 'value': 0},
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
   }
 
   Future<void> _insertDefaultSettings(Database db) async {
-    await db.insert('settings', {'key': 'keep_screen_on', 'value': 1}, conflictAlgorithm: ConflictAlgorithm.ignore);
+    await db.insert(
+      'settings',
+      {'key': settingKeepScreenOn, 'value': 1},
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+    await db.insert(
+      'settings',
+      {'key': settingOnboardingCompleted, 'value': 0},
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
   }
 
   Future<void> _insertDefaultTimers(Database db) async {
@@ -271,6 +291,14 @@ class DatabaseService {
       {'key': key, 'value': value ? 1 : 0},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<bool> isOnboardingCompleted() {
+    return getSetting(settingOnboardingCompleted, defaultValue: false);
+  }
+
+  Future<void> setOnboardingCompleted(bool completed) {
+    return setSetting(settingOnboardingCompleted, completed);
   }
 
   // Close database
