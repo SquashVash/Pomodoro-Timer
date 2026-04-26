@@ -45,6 +45,7 @@ dependencies:
   wakelock_plus: ^1.5.1
   app_tracking_transparency: ^2.0.6+1
   flutter_local_notifications: ^18.0.0
+  flutter_ringtone_player: ^4.0.0
 
 dev_dependencies:
   flutter_test:

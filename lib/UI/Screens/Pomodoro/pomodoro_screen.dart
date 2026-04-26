@@ -5,6 +5,7 @@ import 'package:pomodoro/Services/Database.dart';
 import 'package:pomodoro/Services/NotificationService.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/control_bar.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/finished_timer_dialog.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -122,6 +123,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   }
 
   void _resetTimer() {
+    _stopAlarm();
     _timer?.cancel();
     setState(() {
       _isRunning = false;
@@ -133,8 +135,13 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
   void _onTimerComplete() {
     NotificationService.instance.complete(timerName: _Ptimer.name);
+    FlutterRingtonePlayer().playAlarm(looping: true);
     Vibration.vibrate(pattern: [0, 400, 200, 400, 200, 600]);
     _showCompletionDialog();
+  }
+
+  void _stopAlarm() {
+    FlutterRingtonePlayer().stop();
   }
 
   void _showCompletionDialog() async {
@@ -156,6 +163,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         onReset: _resetTimer,
         onStartNextTimer: nextTimer != null && widget.onTimerSwitch != null
             ? () {
+                _stopAlarm();
                 widget.onTimerSwitch!(nextTimer!);
               }
             : null,
@@ -261,6 +269,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   void dispose() {
     _notificationSub?.cancel();
     _timer?.cancel();
+    _stopAlarm();
     WakelockPlus.disable();
     NotificationService.instance.cancel();
     super.dispose();
