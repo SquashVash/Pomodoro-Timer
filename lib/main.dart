@@ -6,7 +6,6 @@ import 'package:pomodoro/UI/main_navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService.instance.init();
   runApp(const MyApp());
 }
 
@@ -49,6 +48,8 @@ class _LaunchGate extends StatelessWidget {
         final showOnboarding = snapshot.data ?? true;
         if (showOnboarding) {
           return const OnboardingScreen();
+        }else{
+          NotificationService.instance.init();
         }
 
         return const MainNavigation();

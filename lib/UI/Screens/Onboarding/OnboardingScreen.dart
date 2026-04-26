@@ -5,6 +5,9 @@ import 'package:pomodoro/UI/main_navigation.dart';
 import 'package:pomodoro/UI/Screens/Onboarding/MotivationScreen.dart';
 import 'package:pomodoro/UI/Screens/Onboarding/PrivacyScreen.dart';
 import 'package:pomodoro/UI/Screens/Onboarding/WelcomeScreen.dart';
+import 'package:pomodoro/UI/Screens/Onboarding/NotificationScreen.dart';
+
+import '../../../Services/NotificationService.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -30,6 +33,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       pages.add(PrivacyScreen(onNext: _nextPage, onPrevious: _previousPage, isDark: isDark));
     }
 
+    pages.add(NotificationScreen(onNext: _nextPage, onPrevious: _previousPage, isDark: isDark));
+
     return pages;
   }
 
@@ -47,6 +52,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     } else {
       _completeOnboarding();
+    }
+
+    if(_currentPage == totalPages - 2){
+      NotificationService.instance.init();
     }
   }
 
