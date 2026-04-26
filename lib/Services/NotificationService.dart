@@ -83,16 +83,16 @@ class NotificationService {
     );
   }
 
-  Future<void> complete({required String timerName}) async {
+  Future<void> complete({required String timerName, bool playSound = true, bool vibrate = true}) async {
     final androidDetails = AndroidNotificationDetails(
       _kCompleteChannelId,
       _kCompleteChannelName,
-      importance: Importance.max,
-      priority: Priority.max,
-      playSound: true,
-      enableVibration: true,
-      vibrationPattern: Int64List.fromList([0, 400, 200, 400, 200, 600]),
-      fullScreenIntent: true,
+      importance: playSound ? Importance.max : Importance.low,
+      priority: playSound ? Priority.max : Priority.low,
+      playSound: playSound,
+      enableVibration: vibrate,
+      vibrationPattern: vibrate ? Int64List.fromList([0, 400, 200, 400, 200, 600]) : null,
+      fullScreenIntent: playSound,
       autoCancel: true,
       ongoing: false,
       onlyAlertOnce: false,

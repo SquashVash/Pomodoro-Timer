@@ -165,11 +165,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   label: Text('Bell'),
                                   icon: Icon(Icons.notifications, size: 16),
                                 ),
-                                ButtonSegment(
-                                  value: 2,
-                                  label: Text('Ringtone'),
-                                  icon: Icon(Icons.ring_volume, size: 16),
-                                ),
                               ],
                               selected: {_alarmType},
                               onSelectionChanged: (selected) {

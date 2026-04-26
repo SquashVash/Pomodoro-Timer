@@ -27,10 +27,6 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   bool _isRunning = false;
   StreamSubscription<String>? _notificationSub;
 
-  bool _alarmEnabled = true;
-  int _alarmType = 0;
-  bool _vibrationEnabled = true;
-
   @override
   void initState() {
     super.initState();
@@ -38,7 +34,6 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     _remainingSeconds = _Ptimer.duration.inSeconds;
     _notificationSub =
         NotificationService.instance.onAction.listen(_onNotificationAction);
-    _loadAlertSettings();
     print(
         "Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
   }
@@ -53,19 +48,6 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
           "Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
       _pauseTimer();
     }
-  }
-
-  Future<void> _loadAlertSettings() async {
-    final db = DatabaseService();
-    final alarmEnabled = await db.getSetting(DatabaseService.settingAlarmEnabled, defaultValue: true);
-    final alarmType = await db.getIntSetting(DatabaseService.settingAlarmType, defaultValue: 0);
-    final vibrationEnabled = await db.getSetting(DatabaseService.settingVibrationEnabled, defaultValue: true);
-    if (!mounted) return;
-    setState(() {
-      _alarmEnabled = alarmEnabled;
-      _alarmType = alarmType;
-      _vibrationEnabled = vibrationEnabled;
-    });
   }
 
   void _onNotificationAction(String actionId) {
@@ -94,6 +76,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       );
       _remainingSeconds--;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        bool finished = false;
         setState(() {
           if (_remainingSeconds > 0) {
             _remainingSeconds--;
@@ -104,9 +87,10 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             );
           } else {
             _pauseTimer();
-            _onTimerComplete();
+            finished = true;
           }
         });
+        if (finished) _onTimerComplete();
       });
     }
   }
@@ -151,23 +135,28 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     NotificationService.instance.cancel();
   }
 
-  void _onTimerComplete() {
-    NotificationService.instance.complete(timerName: _Ptimer.name);
-    if (_alarmEnabled) {
+  Future<void> _onTimerComplete() async {
+    final db = DatabaseService();
+    final alarmEnabled = await db.getSetting(DatabaseService.settingAlarmEnabled, defaultValue: true);
+    final alarmType = await db.getIntSetting(DatabaseService.settingAlarmType, defaultValue: 0);
+    final vibrationEnabled = await db.getSetting(DatabaseService.settingVibrationEnabled, defaultValue: true);
+
+    NotificationService.instance.complete(timerName: _Ptimer.name, playSound: alarmEnabled, vibrate: vibrationEnabled);
+
+    if (alarmEnabled) {
       final player = FlutterRingtonePlayer();
-      switch (_alarmType) {
-        case 1:
-          player.playNotification(looping: true);
-        case 2:
-          player.playRingtone(looping: true);
-        default:
-          player.playAlarm(looping: true);
+      if (alarmType == 1) {
+        player.playNotification(looping: true);
+      } else {
+        player.playAlarm(looping: true);
       }
     }
-    if (_vibrationEnabled) {
+
+    if (vibrationEnabled) {
       Vibration.vibrate(pattern: [0, 400, 200, 400, 200, 600]);
     }
-    _showCompletionDialog();
+
+    if (mounted) _showCompletionDialog();
   }
 
   void _stopAlarm() {
