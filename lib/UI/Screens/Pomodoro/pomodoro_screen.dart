@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pomodoro/Data/PomodoroTimer.dart';
 import 'package:pomodoro/Services/Database.dart';
+import 'package:pomodoro/Services/NotificationService.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/control_bar.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/finished_timer_dialog.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -22,23 +23,39 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
   Timer? _timer;
   bool _isRunning = false;
+  StreamSubscription<String>? _notificationSub;
 
   @override
   void initState() {
     super.initState();
     _Ptimer = widget.Ptimer;
     _remainingSeconds = _Ptimer.duration.inSeconds;
-    print("Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
-
+    _notificationSub =
+        NotificationService.instance.onAction.listen(_onNotificationAction);
+    print(
+        "Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
   }
+
   @override
   void didUpdateWidget(PomodoroScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.Ptimer != widget.Ptimer) {
       _Ptimer = widget.Ptimer;
       _remainingSeconds = _Ptimer.duration.inSeconds;
-      print("Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
+      print(
+          "Timer updated\nNew Name: ${_Ptimer.name}\nNew Duration: ${_Ptimer.duration}\nNext Suggested Timer ID: ${_Ptimer.nextSuggestedTimerID}");
       _pauseTimer();
+    }
+  }
+
+  void _onNotificationAction(String actionId) {
+    switch (actionId) {
+      case 'pause':
+        _startTimer();
+        break;
+      case 'reset':
+        _resetTimer();
+        break;
     }
   }
 
@@ -50,11 +67,21 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         _isRunning = true;
       });
       _updateWakelock();
+      NotificationService.instance.show(
+        timerName: _Ptimer.name,
+        remainingSeconds: _remainingSeconds,
+        isRunning: true,
+      );
       _remainingSeconds--;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           if (_remainingSeconds > 0) {
             _remainingSeconds--;
+            NotificationService.instance.show(
+              timerName: _Ptimer.name,
+              remainingSeconds: _remainingSeconds,
+              isRunning: true,
+            );
           } else {
             _pauseTimer();
             _showCompletionDialog();
@@ -63,38 +90,57 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       });
     }
   }
+
   void _pauseTimer() {
     setState(() {
       _isRunning = false;
     });
     _timer?.cancel();
     _updateWakelock();
+    // Show paused notification only when mid-timer; otherwise cancel (start or complete state)
+    if (_remainingSeconds > 0 && _remainingSeconds < _Ptimer.duration.inSeconds) {
+      NotificationService.instance.show(
+        timerName: _Ptimer.name,
+        remainingSeconds: _remainingSeconds,
+        isRunning: false,
+      );
+    } else {
+      NotificationService.instance.cancel();
+    }
   }
 
   Future<void> _updateWakelock() async {
     final db = DatabaseService();
-    final keepScreenOn = await db.getSetting('keep_screen_on', defaultValue: true);
+    final keepScreenOn =
+        await db.getSetting('keep_screen_on', defaultValue: true);
     if (_isRunning && keepScreenOn) {
       WakelockPlus.enable();
     } else {
       WakelockPlus.disable();
     }
   }
+
   void _resetTimer() {
-    _pauseTimer();
+    _timer?.cancel();
     setState(() {
+      _isRunning = false;
       _remainingSeconds = _Ptimer.duration.inSeconds;
     });
+    _updateWakelock();
+    NotificationService.instance.cancel();
   }
+
   void _showCompletionDialog() async {
     PomodoroTimer? nextTimer;
     if (_Ptimer.nextSuggestedTimerID != null) {
-      nextTimer = await DatabaseService().getTimerById(_Ptimer.nextSuggestedTimerID!);
-      print("Completion Dialog ${_Ptimer.nextSuggestedTimerID}: ${nextTimer?.name}");
+      nextTimer =
+          await DatabaseService().getTimerById(_Ptimer.nextSuggestedTimerID!);
+      print(
+          "Completion Dialog ${_Ptimer.nextSuggestedTimerID}: ${nextTimer?.name}");
     }
 
     if (!mounted) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => FinishedTimerDialog(
@@ -123,14 +169,12 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Circular progress indicator with button
                 SizedBox(
                   width: buttonSize + 40,
                   height: buttonSize + 40,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Progress circle
                       SizedBox(
                         width: buttonSize + 40,
                         height: buttonSize + 40,
@@ -143,7 +187,6 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           ),
                         ),
                       ),
-                      // Central button
                       GestureDetector(
                         onTap: _startTimer,
                         child: Container(
@@ -151,7 +194,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           height: buttonSize,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _isRunning ? _Ptimer.color.withAlpha(950) : _Ptimer.color.withAlpha(1000),
+                            color: _isRunning
+                                ? _Ptimer.color.withAlpha(950)
+                                : _Ptimer.color.withAlpha(1000),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.2),
@@ -175,11 +220,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
-          // Control bar positioned above the bottom navigation bar (only shown when running)
           if (_remainingSeconds != _Ptimer.duration.inSeconds)
             Positioned(
               left: 0,
@@ -202,15 +245,17 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     final secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
+
   double _getProgress() {
     return 1.0 - (_remainingSeconds / _Ptimer.duration.inSeconds);
   }
 
   @override
   void dispose() {
+    _notificationSub?.cancel();
     _timer?.cancel();
     WakelockPlus.disable();
+    NotificationService.instance.cancel();
     super.dispose();
   }
 }
-

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:pomodoro/Services/Database.dart';
+import 'package:pomodoro/Services/NotificationService.dart';
 import 'package:pomodoro/UI/Screens/Onboarding/OnboardingScreen.dart';
 import 'package:pomodoro/UI/main_navigation.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
   runApp(const MyApp());
 }
 
