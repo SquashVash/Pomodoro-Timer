@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pomodoro/Data/PomodoroTimer.dart';
 import 'package:pomodoro/Services/Database.dart';
 import 'package:pomodoro/Services/NotificationService.dart';
+import 'package:pomodoro/Services/review_services.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/control_bar.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/finished_timer_dialog.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -157,6 +158,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     }
 
     if (mounted) _showCompletionDialog();
+
   }
 
   void _stopAlarm() {
@@ -179,11 +181,15 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       builder: (context) => FinishedTimerDialog(
         timer: _Ptimer,
         nextTimerName: nextTimer?.name,
-        onReset: _resetTimer,
+        onReset: () {
+          _resetTimer;
+          if(mounted) {ReviewServices.instance.showReviewPrompt();}
+        },
         onStartNextTimer: nextTimer != null && widget.onTimerSwitch != null
             ? () {
                 _stopAlarm();
                 widget.onTimerSwitch!(nextTimer!);
+                if(mounted) {ReviewServices.instance.showReviewPrompt();}
               }
             : null,
       ),
