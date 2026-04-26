@@ -14,6 +14,9 @@ class DatabaseService {
 
   static const String settingKeepScreenOn = 'keep_screen_on';
   static const String settingOnboardingCompleted = 'onboarding_completed';
+  static const String settingAlarmEnabled = 'alarm_enabled';
+  static const String settingAlarmType = 'alarm_type';
+  static const String settingVibrationEnabled = 'vibration_enabled';
 
   static const List<IconData> _iconOptions = [
     Icons.timer,
@@ -271,7 +274,7 @@ class DatabaseService {
     );
   }
 
-  // Get Setting
+  // Get Setting (bool)
   Future<bool> getSetting(String key, {bool defaultValue = true}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -283,7 +286,29 @@ class DatabaseService {
     return (maps.first['value'] as int) == 1;
   }
 
-  // Set Setting
+  // Get Setting (int)
+  Future<int> getIntSetting(String key, {int defaultValue = 0}) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'settings',
+      where: 'key = ?',
+      whereArgs: [key],
+    );
+    if (maps.isEmpty) return defaultValue;
+    return maps.first['value'] as int;
+  }
+
+  // Set Setting (int)
+  Future<void> setIntSetting(String key, int value) async {
+    final db = await database;
+    await db.insert(
+      'settings',
+      {'key': key, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Set Setting (bool)
   Future<void> setSetting(String key, bool value) async {
     final db = await database;
     await db.insert(
