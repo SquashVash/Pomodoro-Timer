@@ -5,6 +5,7 @@ import 'package:pomodoro/Services/Database.dart';
 import 'package:pomodoro/Services/NotificationService.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/control_bar.dart';
 import 'package:pomodoro/UI/Screens/Pomodoro/Components/finished_timer_dialog.dart';
+import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class PomodoroScreen extends StatefulWidget {
@@ -84,7 +85,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             );
           } else {
             _pauseTimer();
-            _showCompletionDialog();
+            _onTimerComplete();
           }
         });
       });
@@ -128,6 +129,12 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     });
     _updateWakelock();
     NotificationService.instance.cancel();
+  }
+
+  void _onTimerComplete() {
+    NotificationService.instance.complete(timerName: _Ptimer.name);
+    Vibration.vibrate(pattern: [0, 400, 200, 400, 200, 600]);
+    _showCompletionDialog();
   }
 
   void _showCompletionDialog() async {

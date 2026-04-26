@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 const _kNotificationId = 1;
@@ -6,6 +7,10 @@ const _kChannelId = 'pomodoro_timer';
 const _kChannelName = 'Timer';
 const _kActionPause = 'pause';
 const _kActionReset = 'reset';
+
+const _kCompleteNotificationId = 2;
+const _kCompleteChannelId = 'pomodoro_complete';
+const _kCompleteChannelName = 'Timer Complete';
 
 class NotificationService {
   NotificationService._();
@@ -74,6 +79,27 @@ class NotificationService {
       _kNotificationId,
       timerName,
       isRunning ? time : '$time  •  Paused',
+      NotificationDetails(android: androidDetails),
+    );
+  }
+
+  Future<void> complete({required String timerName}) async {
+    final androidDetails = AndroidNotificationDetails(
+      _kCompleteChannelId,
+      _kCompleteChannelName,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([0, 400, 200, 400, 200, 600]),
+      autoCancel: true,
+      ongoing: false,
+      onlyAlertOnce: false,
+    );
+    await _plugin.show(
+      _kCompleteNotificationId,
+      timerName,
+      'Timer complete!',
       NotificationDetails(android: androidDetails),
     );
   }
